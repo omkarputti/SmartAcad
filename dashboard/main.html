@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCMS - Smart Classroom Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .sidebar-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .sidebar-section {
+            padding: 20px 0;
+        }
+
+        .sidebar-section h3 {
+            padding: 0 20px 10px;
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin: 2px 10px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .sidebar-menu a:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.15);
+            font-weight: 500;
+        }
+
+        .sidebar-menu a::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            background-size: contain;
+            opacity: 0.8;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 0;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .user-profile {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 20px;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .card h3 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card .value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        /* Tasks List */
+        .tasks-list {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            margin-bottom: 30px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-icon {
+            width: 40px;
+            height: 40px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+        }
+
+        .task-content h4 {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .task-content p {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* Engagement Metrics */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* Resources */
+        .resources-list {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            margin-bottom: 30px;
+        }
+
+        .resource-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .resource-item:last-child {
+            border-bottom: none;
+        }
+
+        .resource-icon {
+            width: 32px;
+            height: 32px;
+            background: #f3f4f6;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+
+        .resource-content h4 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+
+        .resource-content p {
+            font-size: 12px;
+            color: #6366f1;
+        }
+
+        /* Progress Dashboard */
+        .progress-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .progress-item {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .progress-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .progress-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f3f4f6;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #6366f1;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* Safety Alert */
+        .safety-alert {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+        }
+
+        .safety-icon {
+            width: 40px;
+            height: 40px;
+            background: #10b981;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: white;
+        }
+
+        /* Forum */
+        .forum-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .forum-icon {
+            width: 48px;
+            height: 48px;
+            background: #f3f4f6;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #6366f1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5856eb;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header" style="text-align: center;">
+            <img src="assets/Logo.jpg" alt="SCMS Logo" style="width: 140px; height: 140px; border-radius: 60%; display: block; margin: 0 auto;">
+        </div>
+        
+        <div class="sidebar-section">
+            <h3>Main Menu</h3>
+            <ul class="sidebar-menu">
+                <li><a href="#" class="active">📊 Dashboard</a></li>
+                <li><a href="./attendence.html">📅 Attendance</a></li>
+                <li><a href="./resource.html">📚 Resources</a></li>
+                <li><a href="./learning_tools.html">🛠 Learning Tools</a></li>
+                <li><a href="./analytics.html">📈 Analytics</a></li>
+                <li><a href="./AI_Assist.html">🤖 AI Assistant</a></li>
+                <li><a href="./forum.html">💬 Forum</a></li>
+                <li><a href="./safety_Security.html">🔒 Security</a></li>
+            </ul>
+        </div>
+
+        <div class="sidebar-section">
+            <h3>Administration Settings</h3>
+            <ul class="sidebar-menu">
+                <li><a href="#">👥 User Management</a></li>
+                <li><a href="#">⚙ System Settings</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <h1>Dashboard</h1>
+            <div class="user-profile"></div>
+        </div>
+
+        <div class="content">
+            <!-- Attendance Overview -->
+            <div class="section">
+                <h2>Attendance Overview</h2>
+                <div class="cards-grid">
+                    <div class="card">
+                        <h3>Total Classes</h3>
+                        <div class="value">120</div>
+                    </div>
+                    <div class="card">
+                        <h3>Classes Attended</h3>
+                        <div class="value">110</div>
+                    </div>
+                    <div class="card">
+                        <h3>Attendance Rate</h3>
+                        <div class="value">92%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weekly Tasks -->
+            <div class="section">
+                <h2>Weekly Tasks</h2>
+                <div class="tasks-list">
+                    <div class="task-item">
+                        <div class="task-icon">📝</div>
+                        <div class="task-content">
+                            <h4>Math Assignment</h4>
+                            <p>Due: Tomorrow</p>
+                        </div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-icon">🔬</div>
+                        <div class="task-content">
+                            <h4>Science Project</h4>
+                            <p>Due: Next Week</p>
+                        </div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-icon">📚</div>
+                        <div class="task-content">
+                            <h4>History Essay</h4>
+                            <p>Due: Next Week</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Engagement Metrics -->
+            <div class="section">
+                <h2>Engagement Metrics</h2>
+                <div class="metrics-grid">
+                    <div class="card">
+                        <h3>Participation Rate</h3>
+                        <div class="value">85%</div>
+                    </div>
+                    <div class="card">
+                        <h3>Interaction Score</h3>
+                        <div class="value">9.2</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Classroom Resources -->
+            <div class="section">
+                <h2>Classroom Resources</h2>
+                <div class="resources-list">
+                    <div class="resource-item">
+                        <div class="resource-icon">📄</div>
+                        <div class="resource-content">
+                            <h4>Math Notes</h4>
+                            <p>Uploaded: Yesterday</p>
+                        </div>
+                    </div>
+                    <div class="resource-item">
+                        <div class="resource-icon">📊</div>
+                        <div class="resource-content">
+                            <h4>Science Slides</h4>
+                            <p>Uploaded: 2 Days Ago</p>
+                        </div>
+                    </div>
+                    <div class="resource-item">
+                        <div class="resource-icon">📖</div>
+                        <div class="resource-content">
+                            <h4>History Readings</h4>
+                            <p>Uploaded: 3 Days Ago</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Safety Notifications -->
+            <div class="section">
+                <h2>Real-time Safety Notifications</h2>
+                <div class="safety-alert">
+                    <div class="safety-icon">✓</div>
+                    <div>
+                        <h4>No safety alerts at the moment</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Forum -->
+            <div class="section">
+                <h2>Student Forum</h2>
+                <div class="forum-section">
+                    <div class="forum-icon">💬</div>
+                    <h4>Join the discussion</h4>
+                </div>
+            </div>
+
+            <!-- Progress Dashboard -->
+            <div class="section">
+                <h2>Progress Dashboard</h2>
+                <div class="progress-section">
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Overall Progress</span>
+                            <span>75%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 75%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Math</span>
+                            <span>90%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 90%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>Science</span>
+                            <span>80%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 80%"></div>
+                        </div>
+                    </div>
+                    <div class="progress-item">
+                        <div class="progress-label">
+                            <span>History</span>
+                            <span>70%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 70%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-primary">🤖 AI Assistant</button>
+                <button class="btn btn-secondary">⬇ Download Resources</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCMS Forum Comments</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { 
+            background: rgba(255,255,255,0.95); 
+            border-radius: 16px; 
+            padding: 30px; 
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+        }
+        .tabs { 
+            display: flex; 
+            gap: 15px; 
+            margin-bottom: 30px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .tab { 
+            padding: 12px 24px; 
+            background: none; 
+            border: none; 
+            border-radius: 8px 8px 0 0;
+            cursor: pointer; 
+            font-weight: 600;
+            color: #6b7280;
+            transition: all 0.3s ease;
+        }
+        .tab.active { 
+            background: #8B5CF6; 
+            color: white;
+            transform: translateY(-2px);
+        }
+        .content { 
+            background: rgba(255,255,255,0.95); 
+            border-radius: 16px; 
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        .post { 
+            background: #f8fafc; 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin-bottom: 20px;
+            border-left: 4px solid #8B5CF6;
+        }
+        .post-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 15px;
+        }
+        .author { 
+            font-weight: 600; 
+            color: #8B5CF6;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .role { 
+            background: #8B5CF6; 
+            color: white; 
+            padding: 2px 8px; 
+            border-radius: 12px; 
+            font-size: 12px;
+        }
+        .time { color: #6b7280; font-size: 14px; }
+        .post-content { line-height: 1.6; margin-bottom: 15px; }
+        .actions { 
+            display: flex; 
+            gap: 15px; 
+            font-size: 14px;
+        }
+        .action { 
+            background: none; 
+            border: none; 
+            color: #6b7280; 
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .action:hover { 
+            background: #e5e7eb; 
+            color: #8B5CF6;
+        }
+        .comment-form { 
+            background: #f1f5f9; 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin-top: 20px;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-control { 
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid #e5e7eb; 
+            border-radius: 8px; 
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+        .form-control:focus { 
+            outline: none; 
+            border-color: #8B5CF6;
+        }
+        .btn { 
+            background: #8B5CF6; 
+            color: white; 
+            border: none; 
+            padding: 12px 24px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover { 
+            background: #7C3AED; 
+            transform: translateY(-1px);
+        }
+        .comments { margin-left: 30px; margin-top: 15px; }
+        .comment { 
+            background: white; 
+            border-radius: 8px; 
+            padding: 15px; 
+            margin-bottom: 10px;
+            border-left: 3px solid #e5e7eb;
+        }
+        .stats { 
+            display: flex; 
+            gap: 30px; 
+            margin-bottom: 20px;
+        }
+        .stat { 
+            background: rgba(139, 92, 246, 0.1); 
+            padding: 15px 20px; 
+            border-radius: 10px; 
+            text-align: center;
+        }
+        .stat-number { 
+            font-size: 24px; 
+            font-weight: 700; 
+            color: #8B5CF6; 
+            display: block;
+        }
+        .stat-label { 
+            color: #6b7280; 
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="color: #8B5CF6; margin-bottom: 10px;">Forum & Collaboration</h1>
+            <p style="color: #6b7280;">Connect, discuss, and collaborate with MongoDB-powered discussions and role-based access</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('discussions')">MongoDB Discussions</button>
+            <button class="tab" onclick="switchTab('qa')">Moderated Q&A</button>
+            <button class="tab" onclick="switchTab('collaboration')">Role-based Collaboration</button>
+        </div>
+
+        <div class="content">
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-number">1,247</span>
+                    <span class="stat-label">Active Users</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">3,521</span>
+                    <span class="stat-label">Discussions</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">892</span>
+                    <span class="stat-label">Q&A Topics</span>
+                </div>
+            </div>
+
+            <div id="discussions" class="tab-content">
+                <div class="post">
+                    <div class="post-header">
+                        <div class="author">
+                            Prof. Sarah Chen <span class="role">Teacher</span>
+                        </div>
+                        <div class="time">2 hours ago</div>
+                    </div>
+                    <div class="post-content">
+                        Welcome to our MongoDB discussions! Let's explore database optimization techniques and share best practices for scalable applications.
+                    </div>
+                    <div class="actions">
+                        <button class="action" onclick="toggleLike(this)">👍 Like (12)</button>
+                        <button class="action" onclick="toggleComments(this)">💬 Reply (3)</button>
+                        <button class="action">🔗 Share</button>
+                    </div>
+                    <div class="comments" style="display: none;">
+                        <div class="comment">
+                            <div class="post-header">
+                                <div class="author">Alex Kumar <span class="role">Student</span></div>
+                                <div class="time">1 hour ago</div>
+                            </div>
+                            <div class="post-content">Great topic! I've been working on indexing strategies lately.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="post">
+                    <div class="post-header">
+                        <div class="author">
+                            Maya Patel <span class="role">Student</span>
+                        </div>
+                        <div class="time">4 hours ago</div>
+                    </div>
+                    <div class="post-content">
+                        Has anyone worked with MongoDB aggregation pipelines for complex data transformations? Looking for some guidance on performance optimization.
+                    </div>
+                    <div class="actions">
+                        <button class="action" onclick="toggleLike(this)">👍 Like (8)</button>
+                        <button class="action" onclick="toggleComments(this)">💬 Reply (5)</button>
+                        <button class="action">🔗 Share</button>
+                    </div>
+                    <div class="comments" style="display: none;">
+                        <div class="comment">
+                            <div class="post-header">
+                                <div class="author">Dr. James Wilson <span class="role">Teacher</span></div>
+                                <div class="time">3 hours ago</div>
+                            </div>
+                            <div class="post-content">Check out the $lookup stage for joins and consider using $match early in your pipeline to reduce document processing.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="qa" class="tab-content" style="display: none;">
+                <div class="post">
+                    <div class="post-header">
+                        <div class="author">
+                            Expert Moderator <span class="role">Moderator</span>
+                        </div>
+                        <div class="time">1 hour ago</div>
+                    </div>
+                    <div class="post-content">
+                        <strong>Q:</strong> What's the best approach for handling concurrent writes in MongoDB?<br><br>
+                        <strong>A:</strong> MongoDB uses optimistic concurrency control. For high-concurrency scenarios, consider using transactions with proper retry logic and implementing appropriate write concerns.
+                    </div>
+                    <div class="actions">
+                        <button class="action" onclick="toggleLike(this)">👍 Helpful (24)</button>
+                        <button class="action" onclick="toggleComments(this)">💬 Follow-up (2)</button>
+                        <button class="action">⭐ Bookmark</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="collaboration" class="tab-content" style="display: none;">
+                <div class="post">
+                    <div class="post-header">
+                        <div class="author">
+                            Project Team Alpha <span class="role">Collaborator</span>
+                        </div>
+                        <div class="time">30 minutes ago</div>
+                    </div>
+                    <div class="post-content">
+                        Our Node.js/Django integration project is now ready for review. All team members with 'Developer' role can access the secure repository and provide feedback.
+                    </div>
+                    <div class="actions">
+                        <button class="action" onclick="toggleLike(this)">👍 Like (15)</button>
+                        <button class="action" onclick="toggleComments(this)">💬 Comment (7)</button>
+                        <button class="action">🔒 Access Control: 91% Secure</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="comment-form">
+                <h3 style="margin-bottom: 15px; color: #8B5CF6;">Add Your Comment</h3>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Your name" id="authorName">
+                </div>
+                <div class="form-group">
+                    <select class="form-control" id="userRole">
+                        <option value="Student">Student</option>
+                        <option value="Teacher">Teacher</option>
+                        <option value="Moderator">Moderator</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <textarea class="form-control" rows="4" placeholder="Share your thoughts..." id="commentText"></textarea>
+                </div>
+                <button class="btn" onclick="addComment()">Post Comment</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+            event.target.classList.add('active');
+            document.getElementById(tab).style.display = 'block';
+        }
+
+        function toggleLike(btn) {
+            const current = btn.textContent;
+            const count = parseInt(current.match(/\d+/)[0]);
+            const isLiked = btn.style.color === 'rgb(139, 92, 246)';
+            btn.textContent = current.replace(/\d+/, isLiked ? count - 1 : count + 1);
+            btn.style.color = isLiked ? '' : '#8B5CF6';
+        }
+
+        function toggleComments(btn) {
+            const comments = btn.closest('.post').querySelector('.comments');
+            comments.style.display = comments.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function addComment() {
+            const author = document.getElementById('authorName').value;
+            const role = document.getElementById('userRole').value;
+            const text = document.getElementById('commentText').value;
+            
+            if (!author || !text) return alert('Please fill in all fields');
+
+            const activeTab = document.querySelector('.tab-content[style="display: block;"], .tab-content:not([style*="display: none"])');
+            const firstPost = activeTab.querySelector('.post');
+            const comments = firstPost.querySelector('.comments');
+            
+            comments.style.display = 'block';
+            comments.innerHTML += `
+                <div class="comment">
+                    <div class="post-header">
+                        <div class="author">${author} <span class="role">${role}</span></div>
+                        <div class="time">Just now</div>
+                    </div>
+                    <div class="post-content">${text}</div>
+                </div>
+            `;
+            
+            document.getElementById('authorName').value = '';
+            document.getElementById('commentText').value = '';
+        }
+    </script>
+</body>
+</html>

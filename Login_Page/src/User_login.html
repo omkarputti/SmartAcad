@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Login</h1>
+        <form id="loginForm" class="form">
+            <div class="input-span">
+                <label for="login-email" class="label">Email</label>
+                <input type="email" id="login-email" name="login-email" required />
+            </div>
+            <div class="input-span">
+                <label for="login-password" class="label">Password</label>
+                <input type="password" id="login-password" name="login-password" required />
+            </div>
+            <button class="submit" type="submit" onclick="window.location.href='dashboard/main.html'">Login</button>
+            <div class="span">
+                Don't have an account? <a href="register.html">Register here</a>
+            </div>
+            <div id="loginMessage" style="margin-top:12px;"></div>
+        </form>
+    </div>
+    <script>
+    // Handle login form submission
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        const loginMessage = document.getElementById('loginMessage');
+
+        try {
+            const response = await fetch('http://localhost:5000/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                // Save token and user info to localStorage
+                localStorage.setItem('userToken', data.token);
+                localStorage.setItem('userInfo', JSON.stringify(data.user));
+                loginMessage.style.color = 'green';
+                loginMessage.textContent = 'Login successful! Redirecting...';
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html'; // Change to your dashboard page
+                }, 1000);
+            } else {
+                loginMessage.style.color = 'red';
+                loginMessage.textContent = data.message || 'Login failed.';
+            }
+        } catch (err) {
+            loginMessage.style.color = 'red';
+            loginMessage.textContent = 'Server error. Please try again later.';
+        }
+    });
+    // Example Express login endpoint
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user || user.password !== password) {
+        return res.status(401).json({ message: 'Invalid credentials.' });
+    }
+    // You should use hashed passwords in production!
+    res.json({ message: 'Login successful!', user, token: 'dummy-token' });
+});
+
+const cors = require('cors');
+app.use(cors());
+// Example Express login endpoint
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user || user.password !== password) {
+        return res.status(401).json({ message: 'Invalid credentials.' });
+    }
+    // You should use hashed passwords in production!
+    res.json({ message: 'Login successful!', user, token: 'dummy-token' });
+});
+
+const cors = require('cors');
+app.use(cors());
+    </script>
+</body>
+</html>
+

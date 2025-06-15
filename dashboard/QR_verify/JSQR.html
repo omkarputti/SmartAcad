@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>QR Code Generator</title>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+    }
+    #qrcode canvas {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Generate QR Code to Homepage</h2>
+  <button onclick="generateQR()">Generate QR Code</button>
+  <div id="qrcode"></div>
+
+  <script>
+    const homepageURL = "http://127.0.0.1:5500/index.html"; // or dashboard.html
+
+    function generateQR() {
+      document.getElementById('qrcode').innerHTML = ''; // Clear previous QR
+      QRCode.toCanvas(document.createElement('canvas'), homepageURL, function (error, canvas) {
+        if (error) console.error(error);
+        document.getElementById('qrcode').appendChild(canvas);
+      });
+    }
+  </script>
+</body>
+</html>

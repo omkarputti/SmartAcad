@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics & Reporting - SCMS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2rem 0;
+            transition: all 0.3s ease;
+            position: fixed;
+            height: 100vh;
+            z-index: 1000;
+        }
+
+        .sidebar.collapsed {
+            width: 80px;
+        }
+
+        .logo {
+            padding: 0 2rem;
+            margin-bottom: 2rem;
+            color: white;
+        }
+
+        .logo h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            transition: opacity 0.3s ease;
+        }
+
+        .logo p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .logo h1,
+        .sidebar.collapsed .logo p {
+            opacity: 0;
+        }
+
+        .menu-section {
+            margin-bottom: 2rem;
+        }
+
+        .menu-title {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 2rem;
+            margin-bottom: 1rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .menu-title {
+            opacity: 0;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-right: 3px solid #4ade80;
+        }
+
+        .menu-item.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .menu-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 1rem;
+            transition: margin 0.3s ease;
+        }
+
+        .sidebar.collapsed .menu-icon {
+            margin-right: 0;
+        }
+
+        .menu-text {
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar.collapsed .menu-text {
+            opacity: 0;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar.collapsed + .main-content {
+            margin-left: 80px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .card-title {
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .chart-container {
+            height: 250px;
+            position: relative;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-value {
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+        .trend-indicator {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .trend-up {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .trend-down {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .filter-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-label {
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .filter-select {
+            padding: 0.75rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .filter-select:focus {
+            border-color: #4ade80;
+            box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-left: auto;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .insights-section {
+            margin-top: 2rem;
+        }
+
+        .insight-card {
+            background: linear-gradient(135deg, rgba(74, 222, 128, 0.2) 0%, rgba(34, 197, 94, 0.1) 100%);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+
+        .insight-icon {
+            background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+            color: white;
+        }
+
+        .prediction-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .prediction-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .prediction-item:last-child {
+            border-bottom: none;
+        }
+
+        .prediction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 1rem;
+        }
+
+        .prediction-content {
+            flex: 1;
+        }
+
+        .prediction-title {
+            color: white;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .prediction-desc {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 0.75rem;
+            color: white;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+            }
+
+            .action-buttons {
+                margin-left: 0;
+                margin-top: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .status-active {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .status-processing {
+            background: rgba(249, 115, 22, 0.2);
+            color: #f97316;
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+    
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <h1>SCMS</h1>
+            <p>Safety & Security System</p>
+        </div>
+        
+        <div class="menu-section">
+            <div class="menu-title">Main Menu</div>
+            <a href="analytics-dashboard.html" class="menu-item">
+                <div class="menu-icon">📊</div>
+                <span class="menu-text">Dashboard</span>
+            </a>
+            <a href="./attendence.html" class="menu-item">
+                <div class="menu-icon">👥</div>
+                <span class="menu-text">Attendance</span>
+            </a>
+            <a href="" class="menu-item">
+                <div class="menu-icon">📚</div>
+                <span class="menu-text">Resources</span>
+            </a>
+            <a href="./safety_Security.html" class="menu-item">
+                <div class="menu-icon">🛡</div>
+                <span class="menu-text">Safety & Security</span>
+            </a>
+            <a href="./analytics.html" class="menu-item active">
+                <div class="menu-icon">📈</div>
+                <span class="menu-text">Analytics</span>
+            </a>
+            <a href="./AI_Assist.html" class="menu-item">
+                <div class="menu-icon">🤖</div>
+                <span class="menu-text">AI Assistant</span>
+            </a>
+        </div>
+        
+        <div class="menu-section">
+            <div class="menu-title">Administration</div>
+            <a href="#" class="menu-item">
+                <div class="menu-icon">👤</div>
+                <span class="menu-text">User Management</span>
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon">⚙</div>
+                <span class="menu-text">System Settings</span>
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon">📋</div>
+                <span class="menu-text">Security Logs</span>
+            </a>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="header">
+            <h1>Analytics & Reporting</h1>
+            <p>Predictive insights on participation and learning trends with comprehensive data visualization</p>
+        </div>
+        
+        <div class="filter-bar">
+            <div class="filter-item">
+                <label class="filter-label">Time Period</label>
+                <select class="filter-select" onchange="updateCharts()">
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly" selected>Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="yearly">Yearly</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label class="filter-label">Department</label>
+                <select class="filter-select" onchange="updateCharts()">
+                    <option value="all">All Departments</option>
+                    <option value="safety">Safety</option>
+                    <option value="security">Security</option>
+                    <option value="training">Training</option>
+                    <option value="operations">Operations</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label class="filter-label">Data Source</label>
+                <select class="filter-select">
+                    <option value="postgresql">PostgreSQL</option>
+                    <option value="realtime">Real-time Feed</option>
+                    <option value="combined">Combined</option>
+                </select>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="exportReport()">
+                    📄 Export Report
+                </button>
+                <button class="btn btn-primary" onclick="generatePrediction()">
+                    🔮 Generate Prediction
+                </button>
+            </div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white;">
+                        📊
+                    </div>
+                    <div>
+                        <div class="card-title">Participation Trends</div>
+                        <div class="card-subtitle">Monthly participation analysis</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="participationChart"></canvas>
+                </div>
+                <div class="status-indicator status-active">
+                    ● Data Updated: 2 min ago
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white;">
+                        📚
+                    </div>
+                    <div>
+                        <div class="card-title">Learning Progress</div>
+                        <div class="card-subtitle">Training completion rates</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="learningChart"></canvas>
+                </div>
+                <div class="status-indicator status-active">
+                    ● Real-time Tracking
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                        📈
+                    </div>
+                    <div>
+                        <div class="card-title">Performance Metrics</div>
+                        <div class="card-subtitle">Key performance indicators</div>
+                    </div>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">94%</div>
+                        <div class="stat-label">Completion Rate</div>
+                        <span class="trend-indicator trend-up">↗ +5%</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">1,247</div>
+                        <div class="stat-label">Active Users</div>
+                        <span class="trend-indicator trend-up">↗ +12%</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">89%</div>
+                        <div class="stat-label">Engagement</div>
+                        <span class="trend-indicator trend-down">↘ -2%</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">4.8</div>
+                        <div class="stat-label">Avg Rating</div>
+                        <span class="trend-indicator trend-up">↗ +0.3</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white;">
+                        🎯
+                    </div>
+                    <div>
+                        <div class="card-title">Department Analysis</div>
+                        <div class="card-subtitle">Performance by department</div>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="departmentChart"></canvas>
+                </div>
+                <div class="status-indicator status-processing">
+                    ● Processing: 85% Complete
+                </div>
+            </div>
+        </div>
+        
+        <div class="insights-section">
+            <div class="dashboard-grid">
+                <div class="card insight-card">
+                    <div class="card-header">
+                        <div class="card-icon insight-icon">
+                            🔮
+                        </div>
+                        <div>
+                            <div class="card-title">Predictive Insights</div>
+                            <div class="card-subtitle">AI-powered predictions and recommendations</div>
+                        </div>
+                    </div>
+                    <ul class="prediction-list">
+                        <li class="prediction-item">
+                            <div class="prediction-icon">🎯</div>
+                            <div class="prediction-content">
+                                <div class="prediction-title">Participation Forecast</div>
+                                <div class="prediction-desc">Expected 15% increase in training participation next month</div>
+                            </div>
+                        </li>
+                        <li class="prediction-item">
+                            <div class="prediction-icon">⚠</div>
+                            <div class="prediction-content">
+                                <div class="prediction-title">Risk Assessment</div>
+                                <div class="prediction-desc">Security module needs attention - completion rate declining</div>
+                            </div>
+                        </li>
+                        <li class="prediction-item">
+                            <div class="prediction-icon">📊</div>
+                            <div class="prediction-content">
+                                <div class="prediction-title">Optimization Opportunity</div>
+                                <div class="prediction-desc">Peak engagement hours: 10 AM - 12 PM, 2 PM - 4 PM</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white;">
+                            📋
+                        </div>
+                        <div>
+                            <div class="card-title">Multi-tier Reports</div>
+                            <div class="card-subtitle">Comprehensive reporting system</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <button class="btn btn-secondary" onclick="generateWeeklyReport()">
+                            📄 Weekly Summary Report
+                        </button>
+                        <button class="btn btn-secondary" onclick="generateMonthlyReport()">
+                            📊 Monthly Analytics Report
+                        </button>
+                        <button class="btn btn-secondary" onclick="generateCustomReport()">
+                            ⚙ Custom Report Builder
+                        </button>
+                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+                            <div style="color: rgba(255,255,255,0.8); font-size: 0.9rem;">
+                                <strong>Technology Stack:</strong><br>
+                                • PostgreSQL for structured data storage<br>
+                                • D3.js & Chart.js for visualizations<br>
+                                • Real-time data processing
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data
+        const participationData = {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Training Participation',
+                data: [85, 92, 78, 96, 89, 94],
+                borderColor: '#4ade80',
+                backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        };
+
+        const learningData = {
+            labels: ['Safety', 'Security', 'Emergency', 'Compliance', 'Skills'],
+            datasets: [{
+                data: [92, 85, 78, 88, 81],
+                backgroundColor: [
+                    '#4ade80',
+                    '#3b82f6',
+                    '#f59e0b',
+                    '#ef4444',
+                    '#8b5cf6'
+                ],
+                borderWidth: 0
+            }]
+        };
+
+        const departmentData = {
+            labels: ['Safety', 'Security', 'Training', 'Operations', 'Admin'],
+            datasets: [{
+                label: 'Performance Score',
+                data: [88, 92, 85, 90, 87],
+                backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                borderColor: '#3b82f6',
+                borderWidth: 2,
+                borderRadius: 8
+            }]
+        };
+
+        // Chart configurations
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        color: 'white',
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: 'rgba(255,255,255,0.8)' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                },
+                y: {
+                    ticks: { color: 'rgba(255,255,255,0.8)' },
+                    grid: { color: 'rgba(255,255,255,0.1)' }
+                }
+            }
+        };
+
+        // Initialize charts
+        function initCharts() {
+            // Participation Chart
+            const participationCtx = document.getElementById('participationChart').getContext('2d');
+            new Chart(participationCtx, {
+                type: 'line',
+                data: participationData,
+                options: chartOptions
+            });
+
+            // Learning Chart
+            const learningCtx = document.getElementById('learningChart').getContext('2d');
+            new Chart(learningCtx, {
+                type: 'doughnut',
+                data: learningData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: 'white',
+                                font: { size: 10 }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Department Chart
+            const departmentCtx = document.getElementById('departmentChart').getContext('2d');
+            new Chart(departmentCtx, {
+                type: 'bar',
+                data: departmentData,
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        ...chartOptions.scales,
+                        y: {
+                            ...chartOptions.scales.y,
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // Functions
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function updateCharts() {
+            // Simulate chart updates
+            console.log('Updating charts with new filters...');
+        }
+
+        function exportReport() {
+            alert('Exporting comprehensive analytics report...\n\nIncluding:\n• Participation trends\n• Learning progress\n• Performance metrics\n• Predictive insights');
+        }
+
+        function generatePrediction() {
+            alert('Generating AI-powered predictions...\n\nAnalyzing:\n• Historical participation data\n• Learning completion patterns\n• Seasonal trends\n• Department performance');
+        }
+
+        function generateWeeklyReport() {
+            alert('Generating Weekly Summary Report...\n\nIncludes:\n• Week-over-week comparison\n• Key metrics summary\n• Action items');
+        }
+
+        function generateMonthlyReport() {
+            alert('Generating Monthly Analytics Report...\n\nIncludes:\n• Comprehensive trend analysis\n• Department performance\n• Predictive insights\n• Recommendations');
+        }
+
+        function generateCustomReport() {
+            alert('Opening Custom Report Builder...\n\n• Select date ranges\n• Choose metrics\n• Configure visualizations\n• Set automation schedules');
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+        });
+
+        // Handle responsive behavior
+        window.addEventListener('resize', function() {
+            // Charts will auto-resize due to responsive: true option
+        });
+    </script>
+</body>
+</html>

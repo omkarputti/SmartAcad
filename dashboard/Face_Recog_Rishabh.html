@@ -1,0 +1,226 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Face Recognition Attendance</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+    }
+
+    .container {
+      background: #fff;
+      color: #333;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      width: 100%;
+      max-width: 600px;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 28px;
+      color: #6c5ce7;
+    }
+
+    video {
+      border-radius: 16px;
+      width: 100%;
+      height: auto;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    button {
+      padding: 12px 30px;
+      background: #6c5ce7;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: #4834d4;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    #loadingModal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 15px;
+      text-align: center;
+      color: #333;
+      animation: scaleIn 0.3s ease;
+    }
+
+    .loader {
+      border: 6px solid #eee;
+      border-top: 6px solid #6c5ce7;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      margin: 20px auto;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .resultBox {
+      background: #dfe6e9;
+      color: #2d3436;
+      padding: 25px;
+      margin-top: 25px;
+      border-radius: 12px;
+      font-size: 18px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    #attendanceLog {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #636e72;
+      max-height: 100px;
+      overflow-y: auto;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Face Recognition Attendance</h1>
+
+    <div id="cameraSection" class="hidden">
+      <video id="webcam" autoplay playsinline></video>
+      <button onclick="captureImage()">📸 Capture Face</button>
+    </div>
+
+    <div id="resultBox" class="resultBox hidden">
+      ✅ Verification Successful & Stored in Database.<br />
+      📅 Attendance Marked at <span id="timestamp"></span>
+    </div>
+
+    <button id="startBtn" onclick="startCamera()">Start Recognition</button>
+
+    <div id="attendanceLog"></div>
+  </div>
+
+  <div id="loadingModal">
+    <div class="modal-content">
+      <h3>🔍 Analyzing your face...</h3>
+      <div class="loader"></div>
+    </div>
+  </div>
+
+  <canvas id="canvas" width="640" height="480" class="hidden"></canvas>
+
+  <script>
+    const webcam = document.getElementById("webcam");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const cameraSection = document.getElementById("cameraSection");
+    const resultBox = document.getElementById("resultBox");
+    const timestampEl = document.getElementById("timestamp");
+    const startBtn = document.getElementById("startBtn");
+    const loadingModal = document.getElementById("loadingModal");
+    const attendanceLog = document.getElementById("attendanceLog");
+
+    function startCamera() {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          webcam.srcObject = stream;
+          startBtn.classList.add("hidden");
+          cameraSection.classList.remove("hidden");
+        })
+        .catch(err => alert("❌ Camera access denied or unavailable."));
+    }
+
+    function captureImage() {
+      ctx.drawImage(webcam, 0, 0, canvas.width, canvas.height);
+      cameraSection.classList.add("hidden");
+      loadingModal.style.display = "flex";
+
+      setTimeout(() => {
+        loadingModal.style.display = "none";
+        resultBox.classList.remove("hidden");
+
+        const timeNow = new Date();
+        const formatted = timeNow.toLocaleString();
+        timestampEl.textContent = formatted;
+
+        saveAttendance(formatted);
+        showAttendanceLog();
+        downloadImage(timeNow);
+      }, 4000);
+    }
+
+    function saveAttendance(time) {
+      let records = JSON.parse(localStorage.getItem("attendance")) || [];
+      records.push({ time });
+      localStorage.setItem("attendance", JSON.stringify(records));
+    }
+
+    function showAttendanceLog() {
+      let records = JSON.parse(localStorage.getItem("attendance")) || [];
+      let html = `<h4>📜 Attendance History</h4><ul>`;
+      records.slice(-5).reverse().forEach((entry, index) => {
+        html += `<li>✅ ${entry.time}</li>`;
+      });
+      html += `</ul>`;
+      attendanceLog.innerHTML = html;
+    }
+
+    // function downloadImage(dateObj) {
+    //   const filename = `attendance_${dateObj.getFullYear()}-${String(dateObj.getMonth()+1).padStart(2,'0')}-${String(dateObj.getDate()).padStart(2,'0')}_${String(dateObj.getHours()).padStart(2,'0')}-${String(dateObj.getMinutes()).padStart(2,'0')}-${String(dateObj.getSeconds()).padStart(2,'0')}.png`;
+    //   const link = document.createElement('a');
+    //   link.download = filename;
+    //   link.href = canvas.toDataURL();
+    //   link.click();
+    // }
+
+    // On load
+    showAttendanceLog();
+  </script>
+</body>
+</html>

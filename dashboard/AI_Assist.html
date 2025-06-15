@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Learning Assistant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #eef2f3, #8e9eab);
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+    }
+    .assistant-container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      max-width: 700px;
+      width: 100%;
+    }
+    h2 {
+      background: linear-gradient(to right, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    iframe {
+      width: 100%;
+      height: 315px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      resize: vertical;
+      font-size: 15px;
+    }
+    button {
+      margin-top: 12px;
+      padding: 12px 20px;
+      background: linear-gradient(to right, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    #response {
+      margin-top: 20px;
+      background: #f7f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+  <!-- <div class="menu-section">
+            <div class="menu-title">Main Menu</div>
+            <a href="c:\Users\user\Documents\FrontEnd Development\Byte_Battle\dashboard\main.html" class="menu-item">
+                <div class="menu-icon">📊</div>
+                <span class="menu-text">Dashboard</span>
+            </a>
+            <a href="./attendence.html" class="menu-item">
+                <div class="menu-icon">👥</div>
+                <span class="menu-text">Attendance</span>
+            </a>
+            <a href="" class="menu-item">
+                <div class="menu-icon">📚</div>
+                <span class="menu-text">Resources</span>
+            </a>
+            <a href="./safety_Security.html" class="menu-item">
+                <div class="menu-icon">🛡</div>
+                <span class="menu-text">Safety & Security</span>
+            </a>
+            <a href="./analytics.html" class="menu-item active">
+                <div class="menu-icon">📈</div>
+                <span class="menu-text">Analytics</span>
+            </a>
+            <a href="./AI_Assist.html" class="menu-item">
+                <div class="menu-icon">🤖</div>
+                <span class="menu-text">AI Assistant</span>
+            </a>
+        </div> -->
+  <div class="assistant-container">
+    <h2>AI Learning Assistant</h2>
+    <p>Ask any question during the class below:</p>
+    <iframe src="https://www.youtube.com/embed/qeByhTF8WEw?si=u6HPnSwoeuzgAbUj" frameborder="0" allowfullscreen></iframe>
+
+    <!-- <textarea id="userInput" rows="4" placeholder="Type your question here... (e.g., explain quadratic equations)"></textarea> -->
+    <!-- <button onclick="askGemini()">Ask AI</button> -->
+     <button onclick="window.location.href='https://clutchmac223234.app.n8n.cloud/webhook/6d7dcfe1-bd7c-4ee7-bbb2-27398f123187/chat'">Ask AI</button>
+    <button onclick="window.location.href='./main.html'">Back</button>
+    <div id="response"></div>
+  </div>
+
+  <!-- <script>
+    async function askGemini() {
+      const input = document.getElementById("userInput").value;
+      const output = document.getElementById("response");
+      output.innerHTML = "<em>Thinking...</em>";
+
+      const res = await fetch("http://localhost:5000/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: input })
+      });
+
+      const data = await res.json();
+      output.innerHTML = `<strong>AI:</strong> ${data.reply}`;
+    }
+  </script> -->
+</body>
+</html>

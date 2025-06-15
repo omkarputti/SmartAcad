@@ -1,0 +1,125 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 100%;
+    max-width: 450px;
+    margin: 50px auto;
+    padding: 40px 32px 24px 32px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+}
+
+h1 {
+    text-align: left;
+    color: #111;
+    font-size: 2.2rem;
+    margin-bottom: 2rem;
+    font-weight: bold;
+}
+.form .input-span {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.label {
+    align-self: flex-start;
+    color: var(--clr);
+    font-weight: 600;
+    font-size: 1.05rem;
+    margin-bottom: 0.2rem; /* Add margin for clarity */
+}
+.form {
+    --bg-light: #efefef;
+    --bg-dark: #707070;
+    --clr: #3498db; /* Changed from #58bc82 (green) to #3498db (blue) */
+    --clr-alpha: #9c9c9c60;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    width: 100%;
+    max-width: 100%;
+}
+
+.form .input-span {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form input[type="email"],
+.form input[type="password"],
+.form input[type="text"],
+.form select {
+    border-radius: 0.5rem;
+    padding: 1rem 0.75rem;
+    width: 100%;
+    border: 2px solid #ccc;
+    background-color: var(--bg-light);
+    font-size: 1rem;
+    transition: border 0.2s;
+    box-sizing: border-box; /* Ensure consistent sizing */
+}
+
+.form input[type="email"]:focus,
+.form input[type="password"]:focus,
+.form input[type="text"]:focus,
+.form select:focus {
+    border: 2px solid var(--clr);
+    outline: none;
+}
+
+.label {
+    align-self: flex-start;
+    color: var(--clr);
+    font-weight: 600;
+    font-size: 1.05rem;
+}
+
+.form .submit {
+    padding: 1rem 0.75rem;
+    width: 100%;
+    border-radius: 2rem;
+    background-color: var(--bg-dark);
+    color: var(--bg-light);
+    border: none;
+    cursor: pointer;
+    transition: all 300ms;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+}
+
+.form .submit:hover {
+    background-color: var(--clr);
+    color: var(--bg-dark);
+}
+
+.span {
+    text-align: center;
+    color: var(--bg-dark);
+    margin-top: 0.5rem;
+    font-size: 1rem;
+}
+
+.span a {
+    color: var(--clr);
+    text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 20px 8px;
+    }
+    h1 {
+        font-size: 1.5rem;
+    }
+}

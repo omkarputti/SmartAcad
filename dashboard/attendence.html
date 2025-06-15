@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCMS - Attendance Automation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #334155;
+            overflow-x: hidden;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-section {
+            padding: 0 1.5rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .menu-section {
+            padding: 0 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .menu-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            opacity: 0.7;
+            margin-bottom: 1rem;
+            padding: 0 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.3rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+
+        .menu-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 2rem;
+            background: #f8fafc;
+        }
+
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #6366f1;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .attendance-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .attendance-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+
+        .attendance-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-scanning {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-monitoring {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .card-description {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        /* Facial Recognition Tools */
+        .face-recognition-tools {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .recognition-tool {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .recognition-tool:hover {
+            border-color: #6366f1;
+            background: #f0f4ff;
+        }
+
+        .tool-icon-large {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: #6366f1;
+        }
+
+        .tool-label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #475569;
+            text-align: center;
+        }
+
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tech-tag {
+            background: #6366f1;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        /* QR/GPS Check-in */
+        .checkin-methods {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .checkin-method {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .checkin-method:hover {
+            border-color: #6366f1;
+            background: #f0f4ff;
+        }
+
+        .checkin-method.active {
+            border-color: #6366f1;
+            background: #f0f4ff;
+        }
+
+        /* Dashboard Metrics */
+        .dashboard-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-item {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #6366f1;
+            margin-bottom: 0.3rem;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        /* Alert System */
+        .alert-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-icon {
+            font-size: 1.2rem;
+            margin-right: 1rem;
+            color: #f59e0b;
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 0.2rem;
+        }
+
+        .alert-description {
+            font-size: 0.9rem;
+            color: #a16207;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Dashboard Statistics */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #6366f1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .attendance-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 1000;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .attendance-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .face-recognition-tools {
+                grid-template-columns: 1fr;
+            }
+
+            .checkin-methods {
+                flex-direction: column;
+            }
+
+            .dashboard-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1001;
+            background: #6366f1;
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+    
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="logo-section">
+                <div class="logo">SCMS</div>
+                <div class="logo-subtitle">Smart Classroom</div>
+            </div>
+
+            <div class="menu-section">
+                <div class="menu-title">Main Menu</div>
+                <a href="main.html" class="menu-item">
+                    <div class="menu-icon">📊</div>
+                    Dashboard
+                </a>
+                <a href="attendence.html" class="menu-item active">
+                    <div class="menu-icon">✅</div>
+                    Attendance
+                </a>
+                <a href="#" class="menu-item">
+                    <div class="menu-icon">📚</div>
+                    Resources
+                </a>
+                <a href="learning_tools.html" class="menu-item">
+                    <div class="menu-icon">🎯</div>
+                    Learning Tools
+                </a>
+                <a href="#" class="menu-item">
+                    <div class="menu-icon">📈</div>
+                    Analytics
+                </a>
+                <a href="AI_Assist.html" class="menu-item">
+                    <div class="menu-icon">🤖</div>
+                    AI Assistant
+                </a>
+                <a href="forum.html" class="menu-item">
+                    <div class="menu-icon">💬</div>
+                    Forum
+                </a>
+                <a href="safety_Security.html" class="menu-item">
+                    <div class="menu-icon">🔒</div>
+                    Security
+                </a>
+            </div>
+
+            <div class="menu-section">
+                <div class="menu-title">Administration Settings</div>
+                <a href="#" class="menu-item">
+                    <div class="menu-icon">👥</div>
+                    User Management
+                </a>
+                <a href="#" class="menu-item">
+                    <div class="menu-icon">⚙</div>
+                    System Settings
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Attendance Automation</h1>
+                <p class="page-subtitle">AI-powered facial recognition and GPS tracking for seamless attendance management</p>
+            </div>
+
+            <!-- Statistics Row -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-number">95%</div>
+                    <div class="stat-label">Today's Attendance</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">127</div>
+                    <div class="stat-label">Students Present</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Students Absent</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Late Arrivals</div>
+                </div>
+            </div>
+
+            <div class="attendance-grid">
+                <!-- Facial Recognition -->
+                <div class="attendance-card">
+                    <div class="card-header">
+                        <div class="card-title-section">
+                            <div class="card-icon">👤</div>
+                            <div class="card-title">Facial Recognition</div>
+                        </div>
+                        <div class="status-badge status-active">Active</div>
+                    </div>
+                    <p class="card-description">AI-powered facial recognition for automatic attendance tracking using advanced computer vision algorithms.</p>
+                    
+                    <div class="tech-tags">
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">OpenCV</span>
+                        <span class="tech-tag">dlib</span>
+                        <span class="tech-tag">AWS Rekognition</span>
+                    </div>
+
+                    <div class="face-recognition-tools">
+                        <div class="recognition-tool" onclick="window.location.href='./Face_Recog.html'">
+                            <div class="tool-icon-large">📷</div>
+                            <div class="tool-label">Camera Feed</div>
+                        </div>
+                        <div class="recognition-tool" onclick="trainModel()">
+                            <div class="tool-icon-large">🧠</div>
+                            <div class="tool-label">Train Model</div>
+                        </div>
+                        <div class="recognition-tool" onclick="viewRecognized()">
+                            <div class="tool-icon-large">👥</div>
+                            <div class="tool-label">Recognized Faces</div>
+                        </div>
+                        <div class="recognition-tool" onclick="manageDatabase()">
+                            <div class="tool-icon-large">💾</div>
+                            <div class="tool-label">Face Database</div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary btn-full" onclick="window.location.href='./Face_Recog_Rishabh.html'">
+                        <span>▶</span>
+                        Start Recognition
+                    </button>
+                </div>
+
+                <!-- Unique Identity Number -->
+                <div class="attendance-card">
+                    <div class="card-header">
+                        <div class="card-title-section">
+                            <div class="card-icon">🆔</div>
+                            <div class="card-title">User Directory</div>
+                        </div>
+                        <div class="status-badge status-active">Active</div>
+                    </div>
+                    <p class="card-description">
+                        View all users currently registered as Students and Admins in the system.
+                    </p>
+                    
+                    <div class="tech-tags">
+                        <span class="tech-tag">User List</span>
+                        <span class="tech-tag">Roles</span>
+                        <span class="tech-tag">Directory</span>
+                    </div>
+
+                    <div id="user-list" style="margin-bottom:1.5rem; max-height:220px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px; background:#f8fafc; padding:1rem;">
+                        <div>Loading users...</div>
+                    </div>
+                </div>
+
+                <!-- QR/GPS Check-in -->
+                <div class="attendance-card">
+                    <div class="card-header">
+                        <div class="card-title-section">
+                            <div class="card-icon">📱</div>
+                            <div class="card-title">QR/GPS Check-in</div>
+                        </div>
+                        <div class="status-badge status-scanning">Scanning</div>
+                    </div>
+                    <p class="card-description">Mobile-based attendance with QR code scanning and GPS location verification for accurate check-ins.</p>
+                    
+                    <div class="tech-tags">
+                        <span class="tech-tag">GPS APIs</span>
+                        <span class="tech-tag">Google Maps</span>
+                        <span class="tech-tag">ZBar</span>
+                        <span class="tech-tag">ZXing</span>
+                    </div>
+
+                    <div class="checkin-methods">
+                        <div class="checkin-method active" onclick="selectMethod('qr')">
+                            <div class="tool-icon-large">📱</div>
+                            <div class="tool-label">QR Code</div>
+                        </div>
+                        <div class="checkin-method" onclick="window.location.href='GPS_QR.html'">
+                            <div class="tool-icon-large">📍</div>
+                            <div class="tool-label">GPS Location</div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-metrics">
+                        <div class="metric-item">
+                            <div class="metric-value">24</div>
+                            <div class="metric-label">QR Scans Today</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">18</div>
+                            <div class="metric-label">GPS Check-ins</div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-secondary btn-full" onclick="generateQR()">
+                        <span>🔄</span>
+                        Generate New QR
+                    </button>
+                </div>
+
+                <!-- Real-time Dashboard -->
+                <div class="attendance-card">
+                    <div class="card-header">
+                        <div class="card-title-section">
+                            <div class="card-icon">📊</div>
+                            <div class="card-title">Real-time Dashboard</div>
+                        </div>
+                        <div class="status-badge status-monitoring">Monitoring</div>
+                    </div>
+                    <p class="card-description">Live attendance insights with individual student tracking and comprehensive class-wide analytics.</p>
+                    
+                    <div class="dashboard-metrics">
+                        <div class="metric-item">
+                            <div class="metric-value">42</div>
+                            <div class="metric-label">Present Now</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">5</div>
+                            <div class="metric-label">Late Entries</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">89%</div>
+                            <div class="metric-label">Weekly Average</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">2</div>
+                            <div class="metric-label">Alerts Active</div>
+                        </div>
+                    </div>
+
+                    <!-- Alert System -->
+                    <div class="alert-item">
+                        <div class="alert-icon">⚠</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Absenteeism Alert</div>
+                            <div class="alert-description">John Doe has been absent for 3 consecutive days</div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary btn-full" onclick="onclick=window.location.href='./attendance-dash.html'">
+                        <span>📈</span>
+                        View Full Dashboard
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let selectedMethod = 'qr';
+        let cameraActive = false;
+
+        function toggleCamera() {
+            const btn = event.currentTarget;
+            cameraActive = !cameraActive;
+            
+            if (cameraActive) {
+                btn.style.borderColor = '#10b981';
+                btn.style.background = '#ecfdf5';
+                btn.querySelector('.tool-icon-large').textContent = '🎥';
+            } else {
+                btn.style.borderColor = '#e2e8f0';
+                btn.style.background = '#f8fafc';
+                btn.querySelector('.tool-icon-large').textContent = '📷';
+            }
+        }
+
+        function trainModel() {
+            const btn = event.currentTarget;
+            btn.style.borderColor = '#f59e0b';
+            btn.style.background = '#fef3c7';
+            btn.querySelector('.tool-label').textContent = 'Training...';
+            
+            setTimeout(() => {
+                btn.style.borderColor = '#10b981';
+                btn.style.background = '#ecfdf5';
+                btn.querySelector('.tool-label').textContent = 'Model Trained';
+                setTimeout(() => {
+                    btn.style.borderColor = '#e2e8f0';
+                    btn.style.background = '#f8fafc';
+                    btn.querySelector('.tool-label').textContent = 'Train Model';
+                }, 2000);
+            }, 3000);
+        }
+
+        function viewRecognized() {
+            alert('Displaying recognized faces database...');
+        }
+
+        function manageDatabase() {
+            alert('Opening face database management...');
+        }
+
+        function startFaceRecognition() {
+            const btn = event.currentTarget;
+            btn.innerHTML = '<span>⏳</span> Starting Recognition...';
+            btn.style.background = 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)';
+            
+            setTimeout(() => {
+                btn.innerHTML = '<span>✅</span> Recognition Active';
+                btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                setTimeout(() => {
+                    btn.innerHTML = '<span>⏹</span> Stop Recognition';
+                }, 2000);
+            }, 2000);
+        }
+
+        function selectMethod(method) {
+            selectedMethod = method;
+            document.querySelectorAll('.checkin-method').forEach(el => {
+                el.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        function generateQR() {
+            const btn = event.currentTarget;
+            btn.innerHTML = '<span>🔄</span> Generating...';
+            btn.style.background = 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)';
+            
+            setTimeout(() => {
+                btn.innerHTML = '<span>✅</span> QR Generated';
+                setTimeout(() => {
+                    btn.innerHTML = '<span>🔄</span> Generate New QR';
+                    btn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+                }, 2000);
+            }, 1500);
+        }
+
+        function viewFullDashboard() {
+            alert('Opening comprehensive attendance dashboard...');
+        }
+
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('mobile-open');
+        }
+
+        // Menu item interactions
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.menu-item').forEach(menuItem => {
+                    menuItem.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(e.target) && 
+                !menuBtn.contains(e.target) && 
+                sidebar.classList.contains('mobile-open')) {
+                sidebar.classList.remove('mobile-open');
+            }
+        });
+
+        // Auto-update stats (simulation)
+        setInterval(() => {
+            const presentNow = document.querySelector('.metric-item .metric-value');
+            if (presentNow) {
+                const current = parseInt(presentNow.textContent);
+                const change = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
+                const newValue = Math.max(0, current + change);
+                presentNow.textContent = newValue;
+            }
+        }, 5000);
+
+        // Fetch and display users in the User Directory card
+        async function fetchUsers() {
+            const userList = document.getElementById('user-list');
+            try {
+                // Replace the URL below with your actual backend endpoint for fetching users
+                const response = await fetch('http://localhost:3001/api/users');
+                const users = await response.json();
+                if (Array.isArray(users) && users.length > 0) {
+                    userList.innerHTML = users.map(user => `
+                        <div style="padding:0.5rem 0; border-bottom:1px solid #e5e7eb;">
+                            <strong>${user.name || user.email}</strong>
+                            <span style="color:#6366f1; font-size:0.9em; margin-left:0.5em;">(${user.role})</span>
+                        </div>
+                    `).join('');
+                } else {
+                    userList.innerHTML = '<div>No users found.</div>';
+                }
+            } catch (err) {
+                userList.innerHTML = '<div style="color:#dc2626;">Failed to load users.</div>';
+            }
+        }
+        fetchUsers();
+    </script>
+</body>
+</html>

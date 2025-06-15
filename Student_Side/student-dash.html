@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCMS - Smart Classroom Student Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+            padding: 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .logo-section {
+            padding: 30px 20px;
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .logo-text {
+            color: #6c5ce7;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .brand-name {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .menu-section {
+            padding: 20px 0;
+        }
+
+        .menu-title {
+            padding: 0 20px 15px;
+            font-size: 11px;
+            font-weight: 600;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: rgba(255,255,255,0.1);
+            border-left-color: #fff;
+        }
+
+        .menu-item.active {
+            background: rgba(255,255,255,0.15);
+            border-left-color: #fff;
+        }
+
+        .menu-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            background: currentColor;
+            mask-size: contain;
+        }
+
+        .dashboard-icon { mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z'/%3E%3C/svg%3E"); }
+        .assignments-icon { mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z'/%3E%3C/svg%3E"); }
+        .grades-icon { mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'/%3E%3C/svg%3E"); }
+        .schedule-icon { mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z'/%3E%3C/svg%3E"); }
+        .resources-icon { mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'/%3E%3C/svg%3E"); }
+        .attendance-icon { mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'/%3E%3C/svg%3E"); }
+        .profile-icon { mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E"); }
+        .forum-icon { mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h4l4 4 4-4h4c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z'/%3E%3C/svg%3E"); }
+
+        .main-content {
+            flex: 1;
+            padding: 0;
+            background: #f8fafc;
+            overflow-y: auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .content-area {
+            padding: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-header {
+            font-size: 14px;
+            color: #718096;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .stat-description {
+            font-size: 12px;
+            color: #a0aec0;
+        }
+
+        .section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+
+        .assignment-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .assignment-item:hover {
+            background: #f7fafc;
+            border-color: #6c5ce7;
+        }
+
+        .assignment-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+
+        .math-bg { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+        .science-bg { background: linear-gradient(135deg, #4ecdc4, #44bd87); }
+        .history-bg { background: linear-gradient(135deg, #a55eea, #8b5cf6); }
+        .english-bg { background: linear-gradient(135deg, #26de81, #20bf6b); }
+
+        .assignment-content {
+            flex: 1;
+        }
+
+        .assignment-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .assignment-due {
+            font-size: 12px;
+            color: #718096;
+        }
+
+        .due-today { color: #e53e3e; font-weight: 600; }
+        .due-soon { color: #d69e2e; font-weight: 600; }
+
+        .grade-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .grade-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .grade-score {
+            font-size: 24px;
+            font-weight: 700;
+            padding: 8px 16px;
+            border-radius: 8px;
+            color: white;
+            margin-left: 15px;
+        }
+
+        .grade-a { background: linear-gradient(135deg, #20bf6b, #26de81); }
+        .grade-b { background: linear-gradient(135deg, #0fb9b1, #2ed573); }
+        .grade-c { background: linear-gradient(135deg, #ffa502, #ff6348); }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .schedule-slot {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .math-slot { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .science-slot { background: linear-gradient(135deg, #f093fb, #f5576c); }
+        .english-slot { background: linear-gradient(135deg, #4facfe, #00f2fe); }
+        .history-slot { background: linear-gradient(135deg, #43e97b, #38f9d7); }
+
+        .time-slot {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 15px;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.3s ease;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.3);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-card, .section {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        .stat-card:nth-child(2) { animation-delay: 0.1s; }
+        .stat-card:nth-child(3) { animation-delay: 0.2s; }
+        .stat-card:nth-child(4) { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-section">
+            <div class="logo">
+                <div class="logo-text">SmartAcad</div>
+            </div>
+            <div class="brand-name">Student Dashboard</div>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-title">Student Menu</div>
+            <a href="#" class="menu-item active">
+                <div class="menu-icon dashboard-icon"></div>
+                Dashboard
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon assignments-icon"></div>
+                My Assignments
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon grades-icon"></div>
+                Grades & Results
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon schedule-icon"></div>
+                Class Schedule
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon resources-icon"></div>
+                Learning Resources
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon chatbot-icon"></div>
+                AI Assistant
+            </a>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-title">Communication</div>
+            <a href="#" class="menu-item">
+                <div class="menu-icon forum-icon"></div>
+                Class Forum
+            </a>
+            <a href="#" class="menu-item">
+                <div class="menu-icon profile-icon"></div>
+                My Profile
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>Student Portal</h1>
+            <div class="user-info">
+                <span>Welcome back, Alex!</span>
+                <div class="user-avatar">AJ</div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">MY ATTENDANCE</div>
+                    <div class="stat-value">94%</div>
+                    <div class="stat-description">38 out of 40 classes attended</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 94%"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">ASSIGNMENTS DUE</div>
+                    <div class="stat-value">3</div>
+                    <div class="stat-description">2 due this week, 1 due today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">AVERAGE GRADE</div>
+                    <div class="stat-value">A-</div>
+                    <div class="stat-description">87.5% overall performance</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">COURSES ENROLLED</div>
+                    <div class="stat-value">6</div>
+                    <div class="stat-description">Spring 2025 semester</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">📋 Upcoming Assignments</div>
+                <div class="assignment-item">
+                    <div class="assignment-icon math-bg">📊</div>
+                    <div class="assignment-content">
+                        <div class="assignment-title">Calculus Problem Set 7</div>
+                        <div class="assignment-due due-today">Due: Today, 11:59 PM</div>
+                    </div>
+                </div>
+                <div class="assignment-item">
+                    <div class="assignment-icon science-bg">🧪</div>
+                    <div class="assignment-content">
+                        <div class="assignment-title">Chemistry Lab Report</div>
+                        <div class="assignment-due due-soon">Due: Tomorrow, 2:00 PM</div>
+                    </div>
+                </div>
+                <div class="assignment-item">
+                    <div class="assignment-icon history-bg">📚</div>
+                    <div class="assignment-content">
+                        <div class="assignment-title">World History Essay</div>
+                        <div class="assignment-due">Due: Next Monday, 9:00 AM</div>
+                    </div>
+                </div>
+                <div class="assignment-item">
+                    <div class="assignment-icon english-bg">✍</div>
+                    <div class="assignment-content">
+                        <div class="assignment-title">Literature Analysis Paper</div>
+                        <div class="assignment-due">Due: Next Wednesday, 11:59 PM</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🎯 Recent Grades</div>
+                <div class="grade-item">
+                    <div class="grade-info">
+                        <div class="assignment-icon math-bg">📊</div>
+                        <div class="assignment-content">
+                            <div class="assignment-title">Algebra Midterm Exam</div>
+                            <div class="assignment-due">Submitted: June 10, 2025</div>
+                        </div>
+                    </div>
+                    <div class="grade-score grade-a">A</div>
+                </div>
+                <div class="grade-item">
+                    <div class="grade-info">
+                        <div class="assignment-icon science-bg">🧪</div>
+                        <div class="assignment-content">
+                            <div class="assignment-title">Physics Quiz 3</div>
+                            <div class="assignment-due">Submitted: June 8, 2025</div>
+                        </div>
+                    </div>
+                    <div class="grade-score grade-b">B+</div>
+                </div>
+                <div class="grade-item">
+                    <div class="grade-info">
+                        <div class="assignment-icon english-bg">✍</div>
+                        <div class="assignment-content">
+                            <div class="assignment-title">Creative Writing Assignment</div>
+                            <div class="assignment-due">Submitted: June 5, 2025</div>
+                        </div>
+                    </div>
+                    <div class="grade-score grade-a">A-</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">📅 Today's Schedule</div>
+                <div class="schedule-grid">
+                    <div class="schedule-slot math-slot">
+                        <div class="time-slot">9:00 - 10:30 AM</div>
+                        <div>Advanced Mathematics</div>
+                    </div>
+                    <div class="schedule-slot science-slot">
+                        <div class="time-slot">11:00 - 12:30 PM</div>
+                        <div>Physics Lab</div>
+                    </div>
+                    <div class="schedule-slot english-slot">
+                        <div class="time-slot">2:00 - 3:30 PM</div>
+                        <div>English Literature</div>
+                    </div>
+                    <div class="schedule-slot history-slot">
+                        <div class="time-slot">4:00 - 5:30 PM</div>
+                        <div>World History</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">🚀 Quick Actions</div>
+                <div class="quick-actions">
+                    <a href="#" class="action-btn">Submit Assignment</a>
+                    <a href="#" class="action-btn">View Grades</a>
+                    <a href="#" class="action-btn">Download Resources</a>
+                    <a href="#" class="action-btn">Contact Teacher</a>
+                    <a href="#" class="action-btn">Study Schedule</a>
+                    <a href="#" class="action-btn">Class Notes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add interactive functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Menu item click handling
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    menuItems.forEach(mi => mi.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Add hover effects to stat cards
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+                });
+            });
+
+            // Assignment item interactions
+            const assignmentItems = document.querySelectorAll('.assignment-item');
+            assignmentItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    this.style.background = '#f0f7ff';
+                    setTimeout(() => {
+                        this.style.background = '';
+                    }, 200);
+                });
+            });
+
+            // Quick action button effects
+            const actionBtns = document.querySelectorAll('.action-btn');
+            actionBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = 'translateY(-2px)';
+                    }, 150);
+                });
+            });
+
+            // Update progress bars with animation
+            const progressFills = document.querySelectorAll('.progress-fill');
+            progressFills.forEach(fill => {
+                const width = fill.style.width;
+                fill.style.width = '0%';
+                setTimeout(() => {
+                    fill.style.width = width;
+                }, 500);
+            });
+
+            // Dynamic time update
+            function updateTime() {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                // Update any time displays if needed
+                const timeElements = document.querySelectorAll('.current-time');
+                timeElements.forEach(el => el.textContent = timeStr);
+            }
+            
+            updateTime();
+            setInterval(updateTime, 60000); // Update every minute
+        });
+    </script>
+</body>
+</html>
